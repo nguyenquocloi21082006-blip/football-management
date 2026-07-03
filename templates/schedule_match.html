@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xếp Trận Đấu</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            color: white;
+            padding: 20px;
+        }
+        .form-container {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            padding: 40px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .form-control, .form-select {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+        }
+        .form-control::placeholder, .form-select option {
+            color: rgba(255, 255, 255, 0.6);
+        }
+        .form-control:focus, .form-select:focus {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: white;
+            color: white;
+        }
+        .form-select option {
+            background: #1e3c72;
+            color: white;
+        }
+        .btn-custom {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid white;
+            color: white;
+            margin: 5px;
+        }
+        .btn-custom:hover {
+            background: rgba(255, 255, 255, 0.3);
+            color: white;
+        }
+        .round-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .round-btn {
+            flex: 1;
+            min-width: 150px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>🏆 Xếp Trận Đấu Mới</h1>
+            <a href="/bracket" class="btn btn-custom btn-lg">🔙 Quay Lại</a>
+        </div>
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }}" style="background: rgba(244, 67, 54, 0.3); border: 2px solid #f44336; color: white;">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        <div class="form-container">
+            <form method="POST">
+                <div class="mb-3">
+                    <label class="form-label">Chọn Vòng Đấu</label>
+                    <div class="round-buttons">
+                        <button type="button" class="btn btn-custom round-btn" onclick="selectRound('VÒNG 1/16')">VÒNG 1/16</button>
+                        <button type="button" class="btn btn-custom round-btn" onclick="selectRound('VÒNG 1/8')">VÒNG 1/8</button>
+                        <button type="button" class="btn btn-custom round-btn" onclick="selectRound('TỨ KẾT')">TỨ KẾT</button>
+                        <button type="button" class="btn btn-custom round-btn" onclick="selectRound('BÁN KẾT')">BÁN KẾT</button>
+                        <button type="button" class="btn btn-custom round-btn" onclick="selectRound('CHUNG KẾT')">CHUNG KẾT</button>
+                        <button type="button" class="btn btn-custom round-btn" onclick="selectRound('TRANH GIẢI 3')">TRANH GIẢI 3</button>
+                    </div>
+                    <input type="hidden" id="round_name" name="round_name" required>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="team1_id" class="form-label">Đội 1</label>
+                        <select class="form-select" id="team1_id" name="team1_id" required>
+                            <option value="">Chọn đội 1</option>
+                            {% for team in teams %}
+                            <option value="{{ team.id }}">{{ team.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="team2_id" class="form-label">Đội 2</label>
+                        <select class="form-select" id="team2_id" name="team2_id" required>
+                            <option value="">Chọn đội 2</option>
+                            {% for team in teams %}
+                            <option value="{{ team.id }}">{{ team.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="match_time" class="form-label">Thời Gian Diễn Ra</label>
+                    <input type="datetime-local" class="form-control" id="match_time" name="match_time">
+                </div>
+                
+                <div class="mb-3">
+                    <label for="bracket_position" class="form-label">Vị Trí Trong Bracket (tùy chọn)</label>
+                    <input type="text" class="form-control" id="bracket_position" name="bracket_position" placeholder="Ví dụ: top-left, bottom-right">
+                </div>
+                
+                <div class="mb-3">
+                    <label for="description" class="form-label">Mô Tả / Ghi Chú</label>
+                    <textarea class="form-control" id="description" name="description" rows="3" placeholder="Nhập mô tả hoặc ghi chú về trận đấu (tùy chọn)"></textarea>
+                </div>
+                
+                <button type="submit" class="btn btn-custom btn-lg w-100">💾 Lưu Trận Đấu</button>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        function selectRound(roundName) {
+            document.getElementById('round_name').value = roundName;
+            
+            // Highlight selected button
+            document.querySelectorAll('.round-btn').forEach(btn => {
+                btn.style.background = 'rgba(255, 255, 255, 0.2)';
+            });
+            event.target.style.background = 'rgba(76, 175, 80, 0.5)';
+        }
+    </script>
+</body>
+</html>

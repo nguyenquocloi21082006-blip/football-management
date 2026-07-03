@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ Thống Quản Lý Bóng Đá</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --bg-gradient: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            --text-color: white;
+            --card-bg: rgba(255, 255, 255, 0.1);
+            --card-border: rgba(255, 255, 255, 0.2);
+            --card-hover: rgba(255, 255, 255, 0.2);
+        }
+        
+        body.light-mode {
+            --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --text-color: white;
+        }
+        
+        body {
+            background: var(--bg-gradient);
+            min-height: 100vh;
+            color: var(--text-color);
+            transition: all 0.3s ease;
+        }
+        .hero-section {
+            text-align: center;
+            padding: 100px 20px;
+            animation: fadeIn 1s ease-in;
+        }
+        .hero-section h1 {
+            font-size: 3.5rem;
+            font-weight: bold;
+            margin-bottom: 30px;
+            animation: slideDown 0.8s ease-out;
+        }
+        .menu-card {
+            background: var(--card-bg);
+            border: 2px solid var(--card-border);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 15px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            text-decoration: none;
+            color: var(--text-color);
+            display: block;
+            animation: fadeInUp 0.6s ease-out;
+        }
+        .menu-card:hover {
+            background: var(--card-hover);
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+        }
+        .menu-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+        .menu-card p {
+            color: rgba(255, 255, 255, 0.8);
+        }
+        .icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            animation: bounce 2s infinite;
+        }
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: var(--card-bg);
+            border: 2px solid var(--card-border);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.5rem;
+        }
+        .theme-toggle:hover {
+            transform: rotate(180deg);
+            background: var(--card-hover);
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes slideDown {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        @keyframes fadeInUp {
+            from { transform: translateY(30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+    </style>
+</head>
+<body>
+    <div class="theme-toggle" onclick="toggleTheme()">🌙</div>
+    <div class="container">
+        <div class="hero-section">
+            <h1>⚽ Hệ Thống Quản Lý Bóng Đá</h1>
+            <p class="lead">Quản lý giải đấu, đội bóng và kết quả trận đấu</p>
+        </div>
+        
+        <div class="row justify-content-center">
+            <div class="col-md-3">
+                <a href="/teams" class="menu-card text-center">
+                    <div class="icon">👥</div>
+                    <h3>Quản Lý Đội</h3>
+                    <p>Xem và thêm đội bóng</p>
+                </a>
+            </div>
+            <div class="col-md-3">
+                <a href="/bracket" class="menu-card text-center">
+                    <div class="icon">🏆</div>
+                    <h3>Bảng Đấu</h3>
+                    <p>Xếp lịch và xem bracket</p>
+                </a>
+            </div>
+            <div class="col-md-3">
+                <a href="/leaderboard" class="menu-card text-center">
+                    <div class="icon">📊</div>
+                    <h3>Bảng Xếp Hạng</h3>
+                    <p>Xem xếp hạng các đội</p>
+                </a>
+            </div>
+            <div class="col-md-3">
+                <a href="/match_history" class="menu-card text-center">
+                    <div class="icon">📜</div>
+                    <h3>Lịch Sử</h3>
+                    <p>Xem lịch sử trận đấu</p>
+                </a>
+            </div>
+            <div class="col-md-3">
+                <a href="/statistics" class="menu-card text-center">
+                    <div class="icon">📈</div>
+                    <h3>Thống Kê</h3>
+                    <p>Xem biểu đồ và số liệu</p>
+                </a>
+            </div>
+        </div>
+        
+        <div class="row justify-content-center mt-4">
+            <div class="col-md-4">
+                <form action="/reset_data" method="POST" onsubmit="return confirm('Bạn có chắc muốn xóa toàn bộ dữ liệu?');">
+                    <button type="submit" class="menu-card text-center w-100" style="background: rgba(244, 67, 54, 0.2); border-color: #f44336;">
+                        <div class="icon">🗑️</div>
+                        <h3>Reset Dữ Liệu</h3>
+                        <p>Xóa toàn bộ dữ liệu</p>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function toggleTheme() {
+            document.body.classList.toggle('light-mode');
+            const toggle = document.querySelector('.theme-toggle');
+            toggle.textContent = document.body.classList.contains('light-mode') ? '☀️' : '🌙';
+            localStorage.setItem('theme', document.body.classList.contains('light-mode') ? 'light' : 'dark');
+        }
+        
+        // Load saved theme
+        if (localStorage.getItem('theme') === 'light') {
+            document.body.classList.add('light-mode');
+            document.querySelector('.theme-toggle').textContent = '☀️';
+        }
+    </script>
+</body>
+</html>
