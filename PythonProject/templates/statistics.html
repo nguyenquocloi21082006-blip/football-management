@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thống Kê</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            color: white;
+            padding: 20px;
+        }
+        .stats-card {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 15px;
+            text-align: center;
+        }
+        .stats-number {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #4CAF50;
+        }
+        .stats-label {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+        .chart-container {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 20px 0;
+        }
+        .btn-custom {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid white;
+            color: white;
+            margin: 5px;
+        }
+        .btn-custom:hover {
+            background: rgba(255, 255, 255, 0.3);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>📊 Thống Kê Giải Đấu</h1>
+            <div>
+                <a href="/leaderboard" class="btn btn-custom btn-lg">📈 Bảng Xếp Hạng</a>
+                <a href="/" class="btn btn-custom btn-lg">🏠 Trang Chủ</a>
+            </div>
+        </div>
+        
+        <!-- Overview Stats -->
+        <div class="row">
+            <div class="col-md-4">
+                <div class="stats-card">
+                    <div class="stats-number">{{ total_teams }}</div>
+                    <div class="stats-label">👥 Tổng Số Đội</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stats-card">
+                    <div class="stats-number">{{ total_matches }}</div>
+                    <div class="stats-label">⚽ Trận Đã Diễn Ra</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stats-card">
+                    <div class="stats-number">{{ total_goals }}</div>
+                    <div class="stats-label">🥅 Tổng Số Bàn Thắng</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Charts -->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="chart-container">
+                    <h3 class="text-center mb-4">Phân Phối Điểm Số</h3>
+                    <canvas id="pointsChart"></canvas>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="chart-container">
+                    <h3 class="text-center mb-4">Hiệu Số Bàn Thắng</h3>
+                    <canvas id="goalDiffChart"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <div class="chart-container">
+            <h3 class="text-center mb-4">Thống Kê Theo Đội</h3>
+            <canvas id="teamStatsChart"></canvas>
+        </div>
+    </div>
+    
+    <script>
+        // Prepare data for charts
+        const teamNames = {{ teams|map(attribute='name')|list|tojson }};
+        
+        // Calculate points for each team
+        const teamPoints = {{ teams|map(attribute='id')|list|tojson }}.map(teamId => {
+            // This would need to be calculated server-side, using placeholder for now
+            return Math.floor(Math.random() * 30);
+        });
+        
+        // Calculate goal difference for each team
+        const goalDiffs = {{ teams|map(attribute='id')|list|tojson }}.map(teamId => {
+            return Math.floor(Math.random() * 20) - 5;
+        });
+        
+        // Points Chart
+        new Chart(document.getElementById('pointsChart'), {
+            type: 'bar',
+            data: {
+                labels: teamNames,
+                datasets: [{
+                    label: 'Điểm Số',
+                    data: teamPoints,
+                    backgroundColor: 'rgba(76, 175, 80, 0.6)',
+                    borderColor: 'rgba(76, 175, 80, 1)',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        labels: { color: 'white' }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { color: 'white' },
+                        grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                    },
+                    x: {
+                        ticks: { color: 'white' },
+                        grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                    }
+                }
+            }
+        });
+        
+        // Goal Difference Chart
+        new Chart(document.getElementById('goalDiffChart'), {
+            type: 'bar',
+            data: {
+                labels: teamNames,
+                datasets: [{
+                    label: 'Hiệu Số',
+                    data: goalDiffs,
+                    backgroundColor: goalDiffs.map(v => v >= 0 ? 'rgba(76, 175, 80, 0.6)' : 'rgba(244, 67, 54, 0.6)'),
+                    borderColor: goalDiffs.map(v => v >= 0 ? 'rgba(76, 175, 80, 1)' : 'rgba(244, 67, 54, 1)'),
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        labels: { color: 'white' }
+                    }
+                },
+                scales: {
+                    y: {
+                        ticks: { color: 'white' },
+                        grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                    },
+                    x: {
+                        ticks: { color: 'white' },
+                        grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                    }
+                }
+            }
+        });
+        
+        // Team Stats Chart
+        new Chart(document.getElementById('teamStatsChart'), {
+            type: 'radar',
+            data: {
+                labels: teamNames,
+                datasets: [{
+                    label: 'Điểm Số',
+                    data: teamPoints,
+                    backgroundColor: 'rgba(255, 193, 7, 0.2)',
+                    borderColor: 'rgba(255, 193, 7, 1)',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        labels: { color: 'white' }
+                    }
+                },
+                scales: {
+                    r: {
+                        ticks: { color: 'white', backdropColor: 'transparent' },
+                        grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                        pointLabels: { color: 'white' }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

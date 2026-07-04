@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản Lý Giải Đấu</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            color: white;
+            padding: 20px;
+        }
+        .tournament-card {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 15px;
+            transition: all 0.3s ease;
+        }
+        .tournament-card:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        .status-active {
+            background: rgba(76, 175, 80, 0.3);
+            border-color: #4CAF50;
+        }
+        .status-completed {
+            background: rgba(158, 158, 158, 0.3);
+            border-color: #9E9E9E;
+        }
+        .btn-custom {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid white;
+            color: white;
+            margin: 5px;
+        }
+        .btn-custom:hover {
+            background: rgba(255, 255, 255, 0.3);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>🏆 Quản Lý Giải Đấu</h1>
+            <div>
+                <a href="/add_tournament" class="btn btn-custom btn-lg">➕ Thêm Giải Mới</a>
+                <a href="/" class="btn btn-custom btn-lg">🏠 Trang Chủ</a>
+            </div>
+        </div>
+        
+        <div class="row">
+            {% for tournament in tournaments %}
+            <div class="col-md-4">
+                <div class="tournament-card {% if tournament.status == 'active' %}status-active{% else %}status-completed{% endif %}">
+                    <h3>{{ tournament.name }}</h3>
+                    {% if tournament.description %}
+                        <p>{{ tournament.description }}</p>
+                    {% endif %}
+                    {% if tournament.start_date %}
+                        <p>📅 Bắt đầu: {{ tournament.start_date.strftime('%d/%m/%Y') }}</p>
+                    {% endif %}
+                    {% if tournament.end_date %}
+                        <p>📅 Kết thúc: {{ tournament.end_date.strftime('%d/%m/%Y') }}</p>
+                    {% endif %}
+                    <p>Trạng thái: {{ 'Đang diễn ra' if tournament.status == 'active' else 'Đã kết thúc' }}</p>
+                    <p>Số trận: {{ tournament.matches|length }}</p>
+                    <form action="/delete_tournament/{{ tournament.id }}" method="POST" style="margin-top: 10px;">
+                        <button type="submit" class="btn btn-sm btn-custom" style="background: rgba(244, 67, 54, 0.3); border-color: #f44336;">🗑️ Xóa</button>
+                    </form>
+                </div>
+            </div>
+            {% else %}
+            <div class="col-12 text-center">
+                <p>Chưa có giải đấu nào. Hãy thêm giải mới!</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+</html>
